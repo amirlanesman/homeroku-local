@@ -58,6 +58,10 @@ export async function createApp(appName) {
     await configApp(appName);
     console.log();
     console.log('App created successfully!!');
+    console.log();
+    const gitRemote = toAppGitRemote(appName);
+    console.log('add git remote at: ' + gitRemote);
+    console.log(`You could execute:\ngit remote add home ${gitRemote}`);
   } catch (err) {
     console.log('Error occured while creating app.')
     console.log('clearing app because unsuccessful.');
@@ -65,6 +69,13 @@ export async function createApp(appName) {
     await fs.remove(appDir);
     throw err;
   }
+}
+
+/**
+ * @param {string} appName
+ */
+export function toAppGitRemote(appName) {
+  return config.git.remotePrefix + appName;
 }
 
 /**
