@@ -1,8 +1,15 @@
 const args = require('minimist')(process.argv.slice(2));
 import { createApp, deleteApp, listApps } from './create-app';
 import {EOL} from 'os';
+import fs from 'fs-extra';
+import { config } from '../dist/config';
+
+async function init() {
+  await Promise.all(Object.values(config.dirs).map(d => fs.ensureDir(d)))
+}
 
 async function main() {
+  await init();
   const command = args._[0];
   const commandArgs = args._.slice(1);
   switch(command) {
