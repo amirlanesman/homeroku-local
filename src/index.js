@@ -5,12 +5,14 @@ import fs from 'fs-extra';
 import { config } from '../dist/config';
 
 async function init() {
-  await Promise.all(Object.values(config.dirs).map(async d => {
+  for (const key in Object.values(config.dirs)) {
+    const d = config.dirs[key];
     if (!await fs.pathExists(d)) {
+      console.log('Creating directory: ' + d);
       // @ts-ignore
       await fs.mkdir(d, { recursive: true });
     }
-  }))
+  }
 }
 
 async function main() {
