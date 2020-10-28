@@ -1,30 +1,35 @@
 const args = require('minimist')(process.argv.slice(2));
 import { createApp, deleteApp, listApps } from './create-app';
-import {EOL} from 'os';
+import { EOL } from 'os';
 import fs from 'fs-extra';
 import { config } from '../dist/config';
 
 async function init() {
-  await Promise.all(Object.values(config.dirs).map(d => fs.ensureDir(d)))
+  await Promise.all(Object.values(config.dirs).map(async d => {
+    if (!await fs.pathExists(d)) {
+      // @ts-ignore
+      await fs.mkdir(d, { recursive: true });
+    }
+  }))
 }
 
 async function main() {
   await init();
   const command = args._[0];
   const commandArgs = args._.slice(1);
-  switch(command) {
-    case 'create-app': 
+  switch (command) {
+    case 'create-app':
       await createApp(commandArgs[0]);
       return;
-    case 'delete-app': 
+    case 'delete-app':
       await deleteApp(commandArgs[0]);
       return;
-    case 'ls': 
+    case 'ls':
       console.log((await listApps()).join(EOL));
       return;
     default:
-      console.log ('Unknown command:', command);
+      console.log('Unknown command:', command);
   }
 }
 
-main().then(() => {}, error => console.log('Error occured:', error))
+main().then(() => { }, error => console.log('Error occured:', error))
