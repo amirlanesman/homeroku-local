@@ -61,6 +61,7 @@ export async function createApp(appName) {
     console.log();
     const gitRemote = toAppGitRemote(appName);
     console.log('add git remote at: ' + gitRemote);
+    console.log();
     console.log(`You could execute:\ngit remote add home ${gitRemote}`);
   } catch (err) {
     console.log('Error occured while creating app.')
