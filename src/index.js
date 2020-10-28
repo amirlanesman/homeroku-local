@@ -2,11 +2,10 @@ const args = require('minimist')(process.argv.slice(2));
 import { createApp, deleteApp, listApps } from './create-app';
 import { EOL } from 'os';
 import fs from 'fs-extra';
-import { config } from '../dist/config';
+import { config } from './config';
 
 async function init() {
-  for (const key in Object.values(config.dirs)) {
-    const d = config.dirs[key];
+  for (const d of Object.values(config.dirs)) {
     if (!await fs.pathExists(d)) {
       console.log('Creating directory: ' + d);
       // @ts-ignore
