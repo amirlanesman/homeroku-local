@@ -84,7 +84,7 @@ async function configGit(appName) {
   const gitPostReceiveHookFile = path.join(gitHooks, gitPostReceiveHook);
   console.log('creating post receive git hook: ', gitPostReceiveHookFile);
   await useTemplate(gitPostReceiveHookFile, path.join('git', gitPostReceiveHook), { appDir, appName, userDir });
-  await fs.chmod(gitPostReceiveHookFile, 755);
+  await fs.chmod(gitPostReceiveHookFile, '755');
 }
 
 /**
@@ -138,6 +138,8 @@ export async function deleteApp(appName) {
   await fs.remove(gitDir);
   console.log('deleting dirs: ' + appDir);
   await fs.remove(appDir);
+  console.log();
+  console.log('Homeroku app ' + appName + ' deleted');
 }
 
 export async function listApps() {
