@@ -1,5 +1,5 @@
 const args = require('minimist')(process.argv.slice(2));
-import { createApp, deleteApp, listApps } from './create-app';
+import { createApp, deleteApp, listApps, getAppEnv, getAppEnvVar, setAppEnvVar, toAppGitRemote } from './create-app';
 import { EOL } from 'os';
 import fs from 'fs-extra';
 import { config } from './config';
@@ -27,6 +27,20 @@ async function main() {
       return;
     case 'ls':
       console.log((await listApps()).join(EOL));
+      return;
+    case 'env':
+      const env = await getAppEnv(commandArgs[0]);
+      console.log(Object.keys(env).map(k => `${k}=${env[k]}`).join(EOL));
+      return;
+    case 'env:get':
+        console.log(await getAppEnvVar(commandArgs[0], commandArgs[1]));
+      return;
+    case 'env:set':
+      const [key, value] = commandArgs[1].split('=');
+      console.log(await setAppEnvVar(commandArgs[0], key, value));
+      return;
+    case 'git:remote':
+      console.log(await toAppGitRemote(commandArgs[0]));
       return;
     default:
       console.log('Unknown command:', command);

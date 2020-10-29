@@ -37,7 +37,7 @@ export async function createApp(appName) {
     throw new Error(`Cannot create app '${appName}' because name to short`);
   }
   const dirs = getDirs(appName);
-  const { appDir, gitDir, userDir } = dirs
+  const { appDir, gitDir, userDir } = dirs;
   if ((await Promise.all(Object.values(dirs).map(d => fs.pathExists(d)))).every(e => !!e)) {
     throw new Error(`Cannot create app '${appName}' because already exists`);
   }
@@ -48,13 +48,9 @@ export async function createApp(appName) {
     await fs.mkdir(appDir);
     console.log('creating user dir: ', userDir);
     await fs.ensureDir(userDir);
-    await spawn('git init --bare', { cwd: gitDir });
-    const gitHooks = path.join(gitDir, gitHooksDir)
-    console.log('ensuring git hooks dir: ', gitHooks);
-    await fs.ensureDir(gitHooks);
-    const gitPostReceiveHookFile = path.join(gitHooks, gitPostReceiveHook);
-    console.log('creating post receive git hook: ', gitPostReceiveHookFile);
-    await useTemplate(gitPostReceiveHookFile, path.join('git', gitPostReceiveHook), { appDir, appName, userDir });
+    console.log('Configuring git.');
+    await configGit(appName);
+    console.log('Configuring app.');
     await configApp(appName);
     console.log();
     console.log('App created successfully!!');
@@ -77,6 +73,18 @@ export async function createApp(appName) {
  */
 export function toAppGitRemote(appName) {
   return config.git.remotePrefix + appName;
+}
+
+async function configGit(appName) {
+  const { appDir, gitDir, userDir } = getDirs(appName);
+  await spawn('git init --bare', { cwd: gitDir });
+  const gitHooks = path.join(gitDir, gitHooksDir)
+  console.log('ensuring git hooks dir: ', gitHooks);
+  await fs.ensureDir(gitHooks);
+  const gitPostReceiveHookFile = path.join(gitHooks, gitPostReceiveHook);
+  console.log('creating post receive git hook: ', gitPostReceiveHookFile);
+  await useTemplate(gitPostReceiveHookFile, path.join('git', gitPostReceiveHook), { appDir, appName, userDir });
+  await fs.chmod(gitPostReceiveHookFile, 755);
 }
 
 /**
@@ -175,6 +183,7 @@ export async function setAppEnvVar(appName, key, value) {
   const env = await getAppEnv(appName);
   env[key] = value;
   await writeDotEnv(appName, env);
+  return `${key}=${env[key]}`;
 }
 
 
